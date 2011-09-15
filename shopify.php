@@ -83,7 +83,7 @@
 
 			list($header_str, $response['body']) = preg_split("/\r\n\r\n|\n\n|\r\r/", $result, 2);
 			$header_lines = preg_split("/\r\n|\n|\r/", $header_str);
-			list($response['protocol'], $response['status_code'], $response['status_message']) = explode(' ', trim(array_shift($header_lines)), 3);
+			list(, $response['status_code'], $response['status_message']) = explode(' ', trim(array_shift($header_lines)), 3);
 
 			$response['headers'] = array();
 			foreach ($header_lines as $header_line)

@@ -28,7 +28,9 @@ Creating the app installation URL:
 
 ```php
 <?php
+
 	$url = shopify_app_install_url($shop_domain);
+
 ?>
 ```
 
@@ -36,10 +38,12 @@ Validate the installation when Shopify redirects the shop owner to your app's **
 
 ```php
 <?php
+
 	if (!shopify_validate_app_installation($_GET['shop'], $_GET['t'], $_GET['timestamp'], $_GET['signature']))
 	{
 		// Guard Clause
 	}
+
 ?>
 ```
 
@@ -47,7 +51,28 @@ Making API calls:
 
 ```php
 <?php
+
 	$shopify = shopify_api_client($shops_myshopify_domain, $shops_token);
 	$response = $shopify('GET', '/admin/products/count.json', array('published_status'=>'published'));
+
+?>
+```
+
+### Response
+
+The response array looks like this:
+
+```php
+<?php
+
+	array
+	(
+		'error'=> false, // Indicates CURL errors.
+		'body'=> array(), // The Shopify API response as an associative array
+		'status_message' => 'Created', // HTTP status message
+		'status_code' => '201', // HTTP status code
+		'headers' => array() // HTTP headers as an associative array with lowercase keys
+	);
+
 ?>
 ```
