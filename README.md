@@ -53,12 +53,27 @@ Making API calls:
 <?php
 
 	$shopify = shopify_api_client($shops_myshopify_domain, $shops_token);
-	$response = $shopify('GET', '/admin/products/count.json', array('published_status'=>'published'));
+
+	// Get all products
+	$response = $shopify('GET', '/admin/products.json', array('published_status'=>'published'));
+
+
+	// Create a new recurring charge
+	$charge = array
+	(
+		"recurring_application_charge"=>array
+		(
+			"price"=>10.0,
+			"name"=>"Super Duper Plan",
+			"return_url"=>"http://super-duper.shopifyapps.com",
+			"test"=>true
+		)
+	);
+
+	$response = $shopify('POST', '/admin/recurring_application_charges.json', $charge);
 
 ?>
 ```
-
-### Response
 
 The response array looks like this:
 
