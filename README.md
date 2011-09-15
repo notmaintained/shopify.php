@@ -19,7 +19,7 @@ Open up the `shopify.php` file and edit the values of the constants `SHOPIFY_APP
 
 ```php
 <?php
-require 'path/to/shopify.php/shopify.php';
+	require 'path/to/shopify.php/shopify.php';
 ?>
 ```
 
@@ -27,18 +27,27 @@ require 'path/to/shopify.php/shopify.php';
 Creating the app installation URL:
 
 ```php
-$url = shopify_app_install_url($shop_domain);
+<?php
+	$url = shopify_app_install_url($shop_domain);
+?>
 ```
 
 Validate the installation when Shopify redirects the shop owner to your app's **Return URL** after installation:
 
 ```php
-shopify_validate_app_installation($_GET['shop'], $_GET['t'], $_GET['timestamp'], $_GET['signature']);
+<?php
+	if (!shopify_validate_app_installation($_GET['shop'], $_GET['t'], $_GET['timestamp'], $_GET['signature']))
+	{
+		// Guard Clause
+	}
+?>
 ```
 
 Making API calls:
 
 ```php
-$shopify = shopify_api_client($shops_myshopify_domain, $shops_token);
-$response = $shopify('GET', '/admin/products/count.json', array('published_status'=>'published'));
+<?php
+	$shopify = shopify_api_client($shops_myshopify_domain, $shops_token);
+	$response = $shopify('GET', '/admin/products/count.json', array('published_status'=>'published'));
+?>
 ```
