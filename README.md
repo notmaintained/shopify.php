@@ -19,7 +19,9 @@ Open up the `shopify.php` file and edit the values of the constants `SHOPIFY_APP
 
 ```php
 <?php
+
 	require 'path/to/shopify.php/shopify.php';
+
 ?>
 ```
 
