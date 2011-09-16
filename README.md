@@ -26,7 +26,7 @@ Open up the `shopify.php` file and edit the values of the constants `SHOPIFY_APP
 ```
 
 ### Usage
-Creating the app installation URL:
+Generate the app installation URL:
 
 ```php
 <?php
