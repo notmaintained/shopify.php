@@ -56,40 +56,36 @@ Making API calls:
 
 	$shopify = shopify_api_client($shops_myshopify_domain, $shops_token);
 
-	// Get all products
-	$response = $shopify('GET', '/admin/products.json', array('published_status'=>'published'));
+	try
+	{
+		// Get all products
+		$response = $shopify('GET', '/admin/products.json', array('published_status'=>'published'));
 
 
-	// Create a new recurring charge
-	$charge = array
-	(
-		"recurring_application_charge"=>array
+		// Create a new recurring charge
+		$charge = array
 		(
-			"price"=>10.0,
-			"name"=>"Super Duper Plan",
-			"return_url"=>"http://super-duper.shopifyapps.com",
-			"test"=>true
-		)
-	);
+			"recurring_application_charge"=>array
+			(
+				"price"=>10.0,
+				"name"=>"Super Duper Plan",
+				"return_url"=>"http://super-duper.shopifyapps.com",
+				"test"=>true
+			)
+		);
 
-	$response = $shopify('POST', '/admin/recurring_application_charges.json', $charge);
+		$response = $shopify('POST', '/admin/recurring_application_charges.json', $charge, $headers);
 
-?>
-```
+		if (201 != $headers['http_status_code']) // guard clause
 
-The response array looks like this:
-
-```php
-<?php
-
-	array
-	(
-		'error'=> false, // Indicates CURL errors.
-		'body'=> array(), // The Shopify API response as an associative array
-		'status_message' => 'Created', // HTTP status message
-		'status_code' => '201', // HTTP status code
-		'headers' => array() // HTTP headers as an associative array with lowercase keys
-	);
-
+	}
+	catch (ShopifyApiException $e)
+	{
+		// $e->getResponse() returns array('headers'=>array(), 'body'=>array())
+	}
+	catch (ShopifyCurlException $e)
+	{
+		// $e->getMessage() returns curl_errno() and $e->getCode() returns curl_ error()
+	}
 ?>
 ```
