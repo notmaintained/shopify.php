@@ -59,7 +59,7 @@ Making API calls:
 	try
 	{
 		// Get all products
-		$response = $shopify('GET', '/admin/products.json', array('published_status'=>'published'));
+		$products = $shopify('GET', '/admin/products.json', array('published_status'=>'published'));
 
 
 		// Create a new recurring charge
@@ -76,7 +76,7 @@ Making API calls:
 
 		try
 		{
-			$response = $shopify('POST', '/admin/recurring_application_charges.json', $charge, $headers);
+			$recurring_application_charge = $shopify('POST', '/admin/recurring_application_charges.json', $charge, $headers);
 		}
 		catch (ShopifyApiException $e)
 		{
