@@ -27,18 +27,18 @@
 			{
 				case 'GET':
 				case 'DELETE':
-					$response = curl_request_('GET', $url, $params, '', '', $headers);
+					$response = curl_request_($method, $url, $params, '', '', $headers);
 					break;
 				case 'POST':
 				case 'PUT':
-					$response = curl_request_('POST', $url, array(), stripslashes(json_encode($params)), 'application/json; charset=utf-8', $headers);
+					$response = curl_request_($method, $url, array(), stripslashes(json_encode($params)), 'application/json; charset=utf-8', $headers);
 					break;
 				default:
 					throw new ShopifyInvalidMethodException($method);
 			}
 
 			$response = json_decode($response, true);
-			if (isset($response['errors']) /*or ($headers['http_status_code'] >= 400)*/) throw new ShopifyApiException(array('headers'=>$headers, 'body'=>$response));
+			if (isset($response['errors']) or ($headers['http_status_code'] >= 400)) throw new ShopifyApiException(array('headers'=>$headers, 'body'=>$response));
 			return (is_array($response) and (count($response) > 0)) ? array_shift($response) : $response;
 		};
 	}

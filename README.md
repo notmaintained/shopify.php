@@ -74,9 +74,14 @@ Making API calls:
 			)
 		);
 
-		$response = $shopify('POST', '/admin/recurring_application_charges.json', $charge, $headers);
-
-		if (201 != $headers['http_status_code']) // guard clause
+		try
+		{
+			$response = $shopify('POST', '/admin/recurring_application_charges.json', $charge, $headers);
+		}
+		catch (ShopifyApiException $e)
+		{
+			// either $headers['http_status_code']) != 201 or isset($response['errors'])
+		}
 
 	}
 	catch (ShopifyApiException $e)
