@@ -27,18 +27,21 @@
 			{
 				case 'GET':
 				case 'DELETE':
-					$response = curl_request_($method, $url, $params, '', '', $headers);
+					$response = curl_http_api_request_($method, $url, $params, '', '', $headers);
 					break;
 				case 'POST':
 				case 'PUT':
-					$response = curl_request_($method, $url, array(), stripslashes(json_encode($params)), 'application/json; charset=utf-8', $headers);
+					$response = curl_http_api_request_($method, $url, array(), stripslashes(json_encode($params)), 'application/json; charset=utf-8', $headers);
 					break;
 				default:
 					throw new ShopifyInvalidMethodException($method);
 			}
 
 			$response = json_decode($response, true);
-			if (isset($response['errors']) or ($headers['http_status_code'] >= 400)) throw new ShopifyApiException(array('headers'=>$headers, 'body'=>$response));
+
+			if (isset($response['errors']) or ($headers['http_status_code'] >= 400))
+				throw new ShopifyApiException(compact('method', 'path', 'params', 'headers', 'response'));
+
 			return (is_array($response) and (count($response) > 0)) ? array_shift($response) : $response;
 		};
 	}
@@ -47,78 +50,91 @@
 		{
 			$username = SHOPIFY_APP_API_KEY;
 			$password = md5(SHOPIFY_APP_SHARED_SECRET.$shops_token);
-			return "https://$username:$password@$shops_myshopify_domain$path";
+			$path = ltrim($path, '/');
+			return "https://$username:$password@$shops_myshopify_domain/$path";
 		}
 
-		function curl_request_($method, $url='', $query_params=array(), $payload='', $content_type='', &$headers=array())
+		function curl_http_api_request_($method, $url, $query='', $payload='', $content_type='', &$headers=array())
 		{
-			if (!empty($query_params)) $url .= is_array($query_params) ? '?' . http_build_query($query_params) : $query_params;
-
+			$url = curl_append_query_($url, $query);
 			$ch = curl_init($url);
+			curl_setopts_($ch, $method, $payload, $content_type);
+			$response = curl_exec($ch);
+			$errno = curl_errno($ch);
+			$error = curl_error($ch);
+			curl_close($ch);
 
-			curl_setopt($ch, CURLOPT_HEADER, true);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-			curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-			curl_setopt($ch, CURLOPT_USERAGENT, 'HAC');
-			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
-			curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+			if ($errno) throw new ShopifyCurlException($error, $errno);
 
-			if ('GET' == $method) curl_setopt($ch, CURLOPT_HTTPGET, true);
-			else
+			list($message_headers, $message_body) = preg_split("/\r\n\r\n|\n\n|\r\r/", $response, 2);
+			$headers = curl_parse_headers_($message_headers);
+
+			return $message_body;
+		}
+
+			function curl_append_query_($url, $query)
 			{
-				curl_setopt ($ch, CURLOPT_CUSTOMREQUEST, $method);
-				if (!empty($content_type)) curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: $content_type"));
-				if (!empty($payload))
+				if (empty($query)) return $url;
+				if (is_array($query)) return "$url?".http_build_query($query);
+				else return "$url?$query";
+			}
+
+			function curl_setopts_($ch, $method, $payload, $content_type)
+			{
+				curl_setopt($ch, CURLOPT_HEADER, true);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+				curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+				curl_setopt($ch, CURLOPT_USERAGENT, 'HAC');
+				curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+				curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+
+				if ('GET' == $method)
 				{
-					if (is_array($payload)) $payload = http_build_query($payload);
-					curl_setopt ($ch, CURLOPT_POSTFIELDS, $payload);
+					curl_setopt($ch, CURLOPT_HTTPGET, true);
+				}
+				else
+				{
+					curl_setopt ($ch, CURLOPT_CUSTOMREQUEST, $method);
+					if (!empty($content_type)) curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: $content_type"));
+					if (!empty($payload))
+					{
+						if (is_array($payload)) $payload = http_build_query($payload);
+						curl_setopt ($ch, CURLOPT_POSTFIELDS, $payload);
+					}
 				}
 			}
 
-			$result = curl_exec($ch);
-
-			if (false === $result)
+			function curl_parse_headers_($message_headers)
 			{
-				$errno = curl_errno($ch);
-				$error = curl_error($ch);
-				curl_close($ch);
-				throw new ShopifyCurlException($error, $errno);
+				$header_lines = preg_split("/\r\n|\n|\r/", $message_headers);
+				$headers = array();
+				list(, $headers['http_status_code'], $headers['http_status_message']) = explode(' ', trim(array_shift($header_lines)), 3);
+				foreach ($header_lines as $header_line)
+				{
+					list($name, $value) = explode(':', $header_line, 2);
+					$name = strtolower($name);
+					$headers[$name] = trim($value);
+				}
+
+				return $headers;
 			}
-
-			curl_close($ch);
-
-			list($header_str, $response) = preg_split("/\r\n\r\n|\n\n|\r\r/", $result, 2);
-			$header_lines = preg_split("/\r\n|\n|\r/", $header_str);
-			$headers = array();
-			list(, $headers['http_status_code'], $headers['http_status_message']) = explode(' ', trim(array_shift($header_lines)), 3);
-			foreach ($header_lines as $header_line)
-			{
-				list($name, $value) = explode(':', $header_line, 2);
-				$name = strtolower($name);
-				if (($name == 'set-cookie') and isset($headers[$name])) $headers[$name] .= ',' . trim($value);
-				else $headers[$name] = trim($value);
-			}
-
-			return $response;
-		}
 
 	class ShopifyCurlException extends Exception { }
 	class ShopifyInvalidMethodException extends Exception { }
 	class ShopifyApiException extends Exception
 	{
-		protected $response;
+		protected $info;
 
-		function __construct($response)
+		function __construct($info)
 		{
-			$this->response = $response;
-			 parent::__construct($response['headers']['http_status_message'], $response['headers']['http_status_code']);
+			$this->info = $info;
+			parent::__construct($info['headers']['http_status_message'], $info['headers']['http_status_code']);
 		}
 
-		function getResponse() { $this->response; }
+		function getInfo() { $this->info; }
 	}
-
 
 ?>

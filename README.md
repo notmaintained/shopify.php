@@ -80,17 +80,17 @@ Making API calls:
 		}
 		catch (ShopifyApiException $e)
 		{
-			// either $headers['http_status_code']) != 201 or isset($response['errors'])
+			// If you're here, either $headers['http_status_code']) != 201 or isset($response['errors'])
 		}
 
 	}
 	catch (ShopifyApiException $e)
 	{
-		// $e->getResponse() returns array('headers'=>array(), 'body'=>array())
+		// $e->getInfo() returns an array with keys: method, path, params (third parameter passed to $shopify), headers and response.
 	}
 	catch (ShopifyCurlException $e)
 	{
-		// $e->getMessage() returns curl_errno() and $e->getCode() returns curl_ error()
+		// $e->getMessage() returns value of curl_errno() and $e->getCode() returns value of curl_ error()
 	}
 ?>
 ```
