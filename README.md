@@ -86,7 +86,15 @@ Making API calls:
 	}
 	catch (ShopifyApiException $e)
 	{
-		// $e->getInfo() returns an array with keys: method, path, params (third parameter passed to $shopify), headers and response.
+		/* $e->getInfo() will return an array with keys:
+			* method
+			* path
+			* params (third parameter passed to $shopify)
+			* headers
+			* response
+			* shops_myshopify_domain
+			* shops_token
+		*/
 	}
 	catch (ShopifyCurlException $e)
 	{

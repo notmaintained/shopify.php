@@ -40,7 +40,7 @@
 			$response = json_decode($response, true);
 
 			if (isset($response['errors']) or ($headers['http_status_code'] >= 400))
-				throw new ShopifyApiException(compact('method', 'path', 'params', 'headers', 'response'));
+				throw new ShopifyApiException(compact('method', 'path', 'params', 'headers', 'response', 'shops_myshopify_domain', 'shops_token'));
 
 			return (is_array($response) and (count($response) > 0)) ? array_shift($response) : $response;
 		};
