@@ -122,6 +122,29 @@
 				return $headers;
 			}
 
+
+	function shopify_calls_made($headers)
+	{
+		return shopify_shop_api_call_limit_param_(0, $headers);
+	}
+
+	function shopify_call_limit($headers)
+	{
+		return shopify_shop_api_call_limit_param_(1, $headers);
+	}
+
+	function shopify_calls_left($headers)
+	{
+		return shopify_call_limit($headers) - shopify_calls_made($headers);
+	}
+
+		function shopify_shop_api_call_limit_param_($index, $headers)
+		{
+			$params = explode('/', $headers['http_x_shopify_shop_api_call_limit']);
+			return (int) $params[$index];
+		}
+
+
 	class ShopifyCurlException extends Exception { }
 	class ShopifyInvalidMethodException extends Exception { }
 	class ShopifyApiException extends Exception
