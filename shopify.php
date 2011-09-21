@@ -11,7 +11,7 @@
 	}
 
 
-	function shopify_validate_app_installation($shop, $t, $timestamp, $signature)
+	function shopify_app_installed($shop, $t, $timestamp, $signature)
 	{
 		return (md5(SHOPIFY_APP_SHARED_SECRET."shop={$shop}t={$t}timestamp={$timestamp}") === $signature);
 	}

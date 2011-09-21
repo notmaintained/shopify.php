@@ -41,7 +41,7 @@ Validate the installation when Shopify redirects the shop owner to your app's **
 ```php
 <?php
 
-	if (!shopify_validate_app_installation($_GET['shop'], $_GET['t'], $_GET['timestamp'], $_GET['signature']))
+	if (!shopify_app_installed($_GET['shop'], $_GET['t'], $_GET['timestamp'], $_GET['signature']))
 	{
 		// Guard Clause
 	}
