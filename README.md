@@ -13,7 +13,7 @@ $ mv shopify.php-shopify.php-* shopify.php
 ```
 
 ### Configure
-Open up the `shopify.php` file and edit the values of the constants `SHOPIFY_APP_API_KEY` and `SHOPIFY_APP_SHARED_SECRET` to your app's **API Key** and **Shared Secret** respectively.
+Open up the `shopify.php` file and change the values of the constants `SHOPIFY_APP_API_KEY` and `SHOPIFY_APP_SHARED_SECRET` to your app's **API Key** and **Shared Secret** respectively. For [private applications](http://wiki.shopify.com/Private_applications) change the value of `SHOPIFY_PRIVATE_APP_PASSWORD` to your private apps's **Password**.
 
 ### Require
 
@@ -54,7 +54,8 @@ Making API calls:
 ```php
 <?php
 
-	$shopify = shopify_api_client($shops_myshopify_domain, $shops_token);
+	$shopify = shopify_api_client($shops_myshopify_domain, $shops_token); // Private applications require an additional (boolean) true parameter
+
 
 	try
 	{

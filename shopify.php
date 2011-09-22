@@ -3,7 +3,7 @@
 
 	define('SHOPIFY_APP_API_KEY', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
 	define('SHOPIFY_APP_SHARED_SECRET', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
-	define('SHOPIFY_APP_PASSWORD', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'); // for private apps
+	define('SHOPIFY_PRIVATE_APP_PASSWORD', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
 
 
 	function shopify_app_install_url($shop_domain)
@@ -18,7 +18,7 @@
 	}
 
 
-	function shopify_api_client($shops_myshopify_domain, $shops_token, $private_app = FALSE)
+	function shopify_api_client($shops_myshopify_domain, $shops_token, $private_app=false)
 	{
 		return function ($method, $path, $params=array(), &$headers=array()) use ($shops_myshopify_domain, $shops_token, $private_app)
 		{
@@ -50,13 +50,7 @@
 		function shopify_api_url_($shops_myshopify_domain, $shops_token, $path, $private_app)
 		{
 			$username = SHOPIFY_APP_API_KEY;
-
-            if ($private_app) {
-                $password = SHOPIFY_APP_PASSWORD;
-            } else {
-                $password = md5(SHOPIFY_APP_SHARED_SECRET.$shops_token);
-            }
-
+			$password = $private_app ? SHOPIFY_PRIVATE_APP_PASSWORD : md5(SHOPIFY_APP_SHARED_SECRET.$shops_token);
 			$path = ltrim($path, '/');
 			return "https://$username:$password@$shops_myshopify_domain/$path";
 		}
