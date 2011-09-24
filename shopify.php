@@ -2,8 +2,8 @@
 
 
 	define('SHOPIFY_APP_API_KEY', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
-	define('SHOPIFY_APP_SHARED_SECRET', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
-	define('SHOPIFY_PRIVATE_APP_PASSWORD', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
+	define('SHOPIFY_APP_SECRET', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
+	define('SHOPIFY_PRIVATE_APP', false);
 
 
 	function shopify_app_install_url($shop_domain)
@@ -14,52 +14,38 @@
 
 	function shopify_app_installed($shop, $t, $timestamp, $signature)
 	{
-		return (md5(SHOPIFY_APP_SHARED_SECRET."shop={$shop}t={$t}timestamp={$timestamp}") === $signature);
+		return (md5(SHOPIFY_APP_SECRET."shop={$shop}t={$t}timestamp={$timestamp}") === $signature);
 	}
 
 
-	function shopify_api_client($shops_myshopify_domain, $shops_token, $private_app=false)
+	function shopify_api_client($shops_myshopify_domain, $shops_token)
 	{
-		return function ($method, $path, $params=array(), &$headers=array()) use ($shops_myshopify_domain, $shops_token, $private_app)
+		$password = SHOPIFY_PRIVATE_APP ? SHOPIFY_APP_SECRET : md5(SHOPIFY_APP_SECRET.$shops_token);
+		$api_key = SHOPIFY_APP_API_KEY;
+		$baseurl = "https://$api_key:$password@$shops_myshopify_domain/";
+
+		return function ($method, $path, $params=array(), &$response_headers=array()) use ($baseurl)
 		{
-			$url = shopify_api_url_($shops_myshopify_domain, $shops_token, $path, $private_app);
+			$url = $baseurl.ltrim($path, '/');
+			$query = in_array($method, array('GET','DELETE')) ? $params : array();
+			$payload = in_array($method, array('POST','PUT')) ? stripslashes(json_encode($params)) : array();
+			$request_headers = in_array($method, array('POST','PUT')) ? array("Content-Type: application/json; charset=utf-8") : array();
 
-			switch ($method)
-			{
-				case 'GET':
-				case 'DELETE':
-					$response = curl_http_api_request_($method, $url, $params, '', '', $headers);
-					break;
-				case 'POST':
-				case 'PUT':
-					$response = curl_http_api_request_($method, $url, array(), stripslashes(json_encode($params)), 'application/json; charset=utf-8', $headers);
-					break;
-				default:
-					throw new ShopifyInvalidMethodException($method);
-			}
-
+			$response = curl_http_api_request_($method, $url, $query, $payload, $request_headers, $response_headers);
 			$response = json_decode($response, true);
 
-			if (isset($response['errors']) or ($headers['http_status_code'] >= 400))
+			if (isset($response['errors']) or ($response_headers['http_status_code'] >= 400))
 				throw new ShopifyApiException(compact('method', 'path', 'params', 'headers', 'response', 'shops_myshopify_domain', 'shops_token'));
 
 			return (is_array($response) and (count($response) > 0)) ? array_shift($response) : $response;
 		};
 	}
 
-		function shopify_api_url_($shops_myshopify_domain, $shops_token, $path, $private_app)
-		{
-			$username = SHOPIFY_APP_API_KEY;
-			$password = $private_app ? SHOPIFY_PRIVATE_APP_PASSWORD : md5(SHOPIFY_APP_SHARED_SECRET.$shops_token);
-			$path = ltrim($path, '/');
-			return "https://$username:$password@$shops_myshopify_domain/$path";
-		}
-
-		function curl_http_api_request_($method, $url, $query='', $payload='', $content_type='', &$headers=array())
+		function curl_http_api_request_($method, $url, $query='', $payload='', $request_headers=array(), &$headers=array())
 		{
 			$url = curl_append_query_($url, $query);
 			$ch = curl_init($url);
-			curl_setopts_($ch, $method, $payload, $content_type);
+			curl_setopts_($ch, $method, $payload, $request_headers);
 			$response = curl_exec($ch);
 			$errno = curl_errno($ch);
 			$error = curl_error($ch);
@@ -80,7 +66,7 @@
 				else return "$url?$query";
 			}
 
-			function curl_setopts_($ch, $method, $payload, $content_type)
+			function curl_setopts_($ch, $method, $payload, $request_headers)
 			{
 				curl_setopt($ch, CURLOPT_HEADER, true);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -99,7 +85,7 @@
 				else
 				{
 					curl_setopt ($ch, CURLOPT_CUSTOMREQUEST, $method);
-					if (!empty($content_type)) curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: $content_type"));
+					if (!empty($request_headers)) curl_setopt($ch, CURLOPT_HTTPHEADER, $request_headers);
 					if (!empty($payload))
 					{
 						if (is_array($payload)) $payload = http_build_query($payload);
@@ -147,7 +133,6 @@
 
 
 	class ShopifyCurlException extends Exception { }
-	class ShopifyInvalidMethodException extends Exception { }
 	class ShopifyApiException extends Exception
 	{
 		protected $info;

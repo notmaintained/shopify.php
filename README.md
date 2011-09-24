@@ -2,6 +2,7 @@
 
 Lightweight PHP (JSON) client for the [Shopify API](http://api.shopify.com/).
 
+
 ## Getting Started
 
 ### Download
@@ -13,7 +14,9 @@ $ mv shopify.php-shopify.php-* shopify.php
 ```
 
 ### Configure
-Open up the `shopify.php` file and change the values of the constants `SHOPIFY_APP_API_KEY` and `SHOPIFY_APP_SHARED_SECRET` to your app's **API Key** and **Shared Secret** respectively. For [private applications](http://wiki.shopify.com/Private_applications) change the value of `SHOPIFY_PRIVATE_APP_PASSWORD` to your private apps's **Password**.
+For regular applications, change the values of the constants `SHOPIFY_APP_API_KEY`, `SHOPIFY_APP_SECRET` and `SHOPIFY_PRIVATE_APP` to your app's **API Key**, **Shared Secret** and **false** respectively.
+
+For [private applications](http://wiki.shopify.com/Private_applications), change the values of the constants `SHOPIFY_APP_API_KEY`, `SHOPIFY_APP_SECRET` and `SHOPIFY_PRIVATE_APP` to your private app's **API Key**, **Password** and **true** respectively.
 
 ### Require
 
@@ -26,7 +29,7 @@ Open up the `shopify.php` file and change the values of the constants `SHOPIFY_A
 ```
 
 ### Usage
-Generating the app installation URL:
+Generating the app's installation URL for a given store:
 
 ```php
 <?php
@@ -54,7 +57,7 @@ Making API calls:
 ```php
 <?php
 
-	$shopify = shopify_api_client($shops_myshopify_domain, $shops_token); // Private applications require an additional (boolean) true parameter
+	$shopify = shopify_api_client($shops_myshopify_domain, $shops_token);
 
 
 	try
@@ -77,7 +80,14 @@ Making API calls:
 
 		try
 		{
+			// All requests accept an optional fourth parameter, that is populated with the response headers.
 			$recurring_application_charge = $shopify('POST', '/admin/recurring_application_charges.json', $charge, $headers);
+
+			// API call limit helpers
+			echo shopify_calls_made($headers); // 2
+			echo shopify_calls_left($headers); // 298
+			echo shopify_call_limit($headers); // 300
+
 		}
 		catch (ShopifyApiException $e)
 		{
