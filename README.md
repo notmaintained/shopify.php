@@ -1,6 +1,6 @@
 # shopify.php
 
-Lightweight PHP (JSON) client for the [Shopify API](http://api.shopify.com/).
+Lightweight multi-paradigm PHP (JSON) client for the [Shopify API](http://api.shopify.com/).
 
 
 ## Getting Started
