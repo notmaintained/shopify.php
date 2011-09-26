@@ -10,7 +10,7 @@ Download the [latest version of shopify.php](https://github.com/sandeepshetty/sh
 
 ```shell
 $ curl -L http://github.com/sandeepshetty/shopify.php/tarball/master | tar xvz
-$ mv shopify.php-shopify.php-* shopify.php
+$ mv sandeepshetty-shopify.php-* shopify.php
 ```
 
 ### Configure
