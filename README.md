@@ -91,7 +91,7 @@ Making API calls:
 		}
 		catch (ShopifyApiException $e)
 		{
-			// If you're here, either $headers['http_status_code']) != 201 or isset($response['errors'])
+			// If you're here, either HTTP status code was >= 400 or response contained the key 'errors'
 		}
 
 	}
