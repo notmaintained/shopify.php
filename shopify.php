@@ -1,27 +1,21 @@
 <?php
 
 
-	define('SHOPIFY_APP_API_KEY', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
-	define('SHOPIFY_APP_SECRET', 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
-	define('SHOPIFY_PRIVATE_APP', false);
-
-
-	function shopify_app_install_url($shop_domain)
+	function shopify_app_install_url($shop_domain, $api_key)
 	{
-		return "http://$shop_domain/admin/api/auth?api_key=".SHOPIFY_APP_API_KEY;
+		return "http://$shop_domain/admin/api/auth?api_key=$api_key";
 	}
 
 
-	function shopify_app_installed($shop, $t, $timestamp, $signature)
+	function shopify_is_app_installed($shop, $t, $timestamp, $signature, $shared_secret)
 	{
-		return (md5(SHOPIFY_APP_SECRET."shop={$shop}t={$t}timestamp={$timestamp}") === $signature);
+		return (md5("{$shared_secret}shop={$shop}t={$t}timestamp={$timestamp}") === $signature);
 	}
 
 
-	function shopify_api_client($shops_myshopify_domain, $shops_token)
+	function shopify_api_client($shops_myshopify_domain, $shops_token, $api_key, $secret, $private_app=false)
 	{
-		$password = SHOPIFY_PRIVATE_APP ? SHOPIFY_APP_SECRET : md5(SHOPIFY_APP_SECRET.$shops_token);
-		$api_key = SHOPIFY_APP_API_KEY;
+		$password = $private_app ? $secret : md5($secret.$shops_token);
 		$baseurl = "https://$api_key:$password@$shops_myshopify_domain/";
 
 		return function ($method, $path, $params=array(), &$response_headers=array()) use ($baseurl)

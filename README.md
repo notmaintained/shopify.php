@@ -13,11 +13,6 @@ $ curl -L http://github.com/sandeepshetty/shopify.php/tarball/master | tar xvz
 $ mv sandeepshetty-shopify.php-* shopify.php
 ```
 
-### Configure
-For regular applications, change the values of the constants `SHOPIFY_APP_API_KEY`, `SHOPIFY_APP_SECRET` and `SHOPIFY_PRIVATE_APP` to your app's **API Key**, **Shared Secret** and **false** respectively.
-
-For [private applications](http://wiki.shopify.com/Private_applications), change the values of the constants `SHOPIFY_APP_API_KEY`, `SHOPIFY_APP_SECRET` and `SHOPIFY_PRIVATE_APP` to your private app's **API Key**, **Password** and **true** respectively.
-
 ### Require
 
 ```php
@@ -34,7 +29,7 @@ Generating the app's installation URL for a given store:
 ```php
 <?php
 
-	$url = shopify_app_install_url($shop_domain);
+	$url = shopify_app_install_url($shop_domain, $api_key);
 
 ?>
 ```
@@ -44,7 +39,7 @@ Validate the installation when Shopify redirects the shop owner to your app's **
 ```php
 <?php
 
-	if (!shopify_app_installed($_GET['shop'], $_GET['t'], $_GET['timestamp'], $_GET['signature']))
+	if (!shopify_is_app_installed($_GET['shop'], $_GET['t'], $_GET['timestamp'], $_GET['signature'], $shared_secret))
 	{
 		// Guard Clause
 	}
@@ -57,8 +52,11 @@ Making API calls:
 ```php
 <?php
 
-	$shopify = shopify_api_client($shops_myshopify_domain, $shops_token);
+	// For regular apps:
+	$shopify = shopify_api_client($shops_myshopify_domain, $shops_token, $api_key, $shared_secret);
 
+	// For private apps:
+	// $shopify = shopify_api_client($shops_myshopify_domain, $shops_token, $api_key, $password, true);
 
 	try
 	{
