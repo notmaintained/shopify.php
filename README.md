@@ -79,12 +79,12 @@ Making API calls:
 		try
 		{
 			// All requests accept an optional fourth parameter, that is populated with the response headers.
-			$recurring_application_charge = $shopify('POST', '/admin/recurring_application_charges.json', $charge, $headers);
+			$recurring_application_charge = $shopify('POST', '/admin/recurring_application_charges.json', $charge, $response_headers);
 
 			// API call limit helpers
-			echo shopify_calls_made($headers); // 2
-			echo shopify_calls_left($headers); // 298
-			echo shopify_call_limit($headers); // 300
+			echo shopify_calls_made($response_headers); // 2
+			echo shopify_calls_left($response_headers); // 298
+			echo shopify_call_limit($response_headers); // 300
 
 		}
 		catch (ShopifyApiException $e)
@@ -99,7 +99,7 @@ Making API calls:
 			* method
 			* path
 			* params (third parameter passed to $shopify)
-			* headers
+			* response_headers
 			* response
 			* shops_myshopify_domain
 			* shops_token

@@ -29,13 +29,13 @@
 			$response = json_decode($response, true);
 
 			if (isset($response['errors']) or ($response_headers['http_status_code'] >= 400))
-				throw new ShopifyApiException(compact('method', 'path', 'params', 'headers', 'response', 'shops_myshopify_domain', 'shops_token'));
+				throw new ShopifyApiException(compact('method', 'path', 'params', 'response_headers', 'response', 'shops_myshopify_domain', 'shops_token'));
 
 			return (is_array($response) and (count($response) > 0)) ? array_shift($response) : $response;
 		};
 	}
 
-		function curl_http_api_request_($method, $url, $query='', $payload='', $request_headers=array(), &$headers=array())
+		function curl_http_api_request_($method, $url, $query='', $payload='', $request_headers=array(), &$response_headers=array())
 		{
 			$url = curl_append_query_($url, $query);
 			$ch = curl_init($url);
@@ -48,7 +48,7 @@
 			if ($errno) throw new ShopifyCurlException($error, $errno);
 
 			list($message_headers, $message_body) = preg_split("/\r\n\r\n|\n\n|\r\r/", $response, 2);
-			$headers = curl_parse_headers_($message_headers);
+			$response_headers = curl_parse_headers_($message_headers);
 
 			return $message_body;
 		}
@@ -104,24 +104,24 @@
 			}
 
 
-	function shopify_calls_made($headers)
+	function shopify_calls_made($response_headers)
 	{
-		return shopify_shop_api_call_limit_param_(0, $headers);
+		return shopify_shop_api_call_limit_param_(0, $response_headers);
 	}
 
-	function shopify_call_limit($headers)
+	function shopify_call_limit($response_headers)
 	{
-		return shopify_shop_api_call_limit_param_(1, $headers);
+		return shopify_shop_api_call_limit_param_(1, $response_headers);
 	}
 
-	function shopify_calls_left($headers)
+	function shopify_calls_left($response_headers)
 	{
-		return shopify_call_limit($headers) - shopify_calls_made($headers);
+		return shopify_call_limit($response_headers) - shopify_calls_made($response_headers);
 	}
 
-		function shopify_shop_api_call_limit_param_($index, $headers)
+		function shopify_shop_api_call_limit_param_($index, $response_headers)
 		{
-			$params = explode('/', $headers['http_x_shopify_shop_api_call_limit']);
+			$params = explode('/', $response_headers['http_x_shopify_shop_api_call_limit']);
 			return (int) $params[$index];
 		}
 
@@ -134,7 +134,7 @@
 		function __construct($info)
 		{
 			$this->info = $info;
-			parent::__construct($info['headers']['http_status_message'], $info['headers']['http_status_code']);
+			parent::__construct($info['response_headers']['http_status_message'], $info['response_headers']['http_status_code']);
 		}
 
 		function getInfo() { $this->info; }
