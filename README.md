@@ -56,7 +56,7 @@ Making API calls:
 	$shopify = shopify_api_client($shops_myshopify_domain, $shops_token, $api_key, $shared_secret);
 
 	// For private apps:
-	// $shopify = shopify_api_client($shops_myshopify_domain, $shops_token, $api_key, $password, true);
+	// $shopify = shopify_api_client($shops_myshopify_domain, NULL, $api_key, $password, true);
 
 	try
 	{
