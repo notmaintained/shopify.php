@@ -23,7 +23,7 @@
 			$url = $baseurl.ltrim($path, '/');
 			$query = in_array($method, array('GET','DELETE')) ? $params : array();
 			$payload = in_array($method, array('POST','PUT')) ? stripslashes(json_encode($params)) : array();
-			$request_headers = in_array($method, array('POST','PUT')) ? array("Content-Type: application/json; charset=utf-8") : array();
+			$request_headers = in_array($method, array('POST','PUT')) ? array("Content-Type: application/json; charset=utf-8", 'Expect:') : array();
 
 			$response = curl_http_api_request_($method, $url, $query, $payload, $request_headers, $response_headers);
 			$response = json_decode($response, true);
