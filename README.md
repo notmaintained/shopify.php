@@ -3,6 +3,11 @@
 Lightweight multi-paradigm PHP (JSON) client for the [Shopify API](http://api.shopify.com/).
 
 
+## Requirements
+
+* PHP 5.3 with [cURL support](http://php.net/manual/en/book.curl.php).
+
+
 ## Getting Started
 
 ### Download
