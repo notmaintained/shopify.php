@@ -1,0 +1,20 @@
+{
+    "name": "sandeepshetty/shopify.php",
+    "type": "library",
+    "description": "Lightweight multi-paradigm PHP (JSON) client for the Shopify API",
+    "keywords": ["shopify","api"],
+    "homepage": "https://github.com/sandeepshetty/shopify.php",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sandeep Shetty",
+            "email": "sandeep.shetty@gmail.com",
+            "homepage": "http://sandeep.shetty.in",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+		"sandeepshetty/wcurl": "dev-master"
+    }
+}
