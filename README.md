@@ -1,3 +1,7 @@
+
+**NOTE**: This only works with legacy authentication. For OAuth2 use [shopify_api](https://github.com/sandeepshetty/shopify_api).
+
+
 # shopify.php
 
 Lightweight multi-paradigm PHP (JSON) client for the [Shopify API](http://api.shopify.com/).
