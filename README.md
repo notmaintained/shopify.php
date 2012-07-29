@@ -1,5 +1,4 @@
-
-**NOTE**: This only works with legacy authentication. For OAuth2 use [shopify_api](https://github.com/sandeepshetty/shopify_api).
+**NOTE**: This only works with legacy authentication. For OAuth2 use [sandeepshetty/shopify_api](https://github.com/sandeepshetty/shopify_api).
 
 
 # shopify.php
