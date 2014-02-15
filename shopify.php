@@ -16,14 +16,16 @@
 	function shopify_api_client($shops_myshopify_domain, $shops_token, $api_key, $secret, $private_app=false)
 	{
 		$password = $private_app ? $secret : md5($secret.$shops_token);
-		$baseurl = "https://$api_key:$password@$shops_myshopify_domain/";
+		$baseurl = "https://$shops_myshopify_domain/";
 
-		return function ($method, $path, $params=array(), &$response_headers=array()) use ($baseurl)
+
+		return function ($method, $path, $params=array(), &$response_headers=array()) use ($baseurl, $password)
 		{
 			$url = $baseurl.ltrim($path, '/');
 			$query = in_array($method, array('GET','DELETE')) ? $params : array();
 			$payload = in_array($method, array('POST','PUT')) ? stripslashes(json_encode($params)) : array();
-			$request_headers = in_array($method, array('POST','PUT')) ? array("Content-Type: application/json; charset=utf-8", 'Expect:') : array();
+			$request_headers = in_array($method, array('POST','PUT')) ? array("Content-Type: application/json; charset=utf-8") : array();
+			$request_headers['X-Shopify-Access-Token'] = $password;
 
 			$response = curl_http_api_request_($method, $url, $query, $payload, $request_headers, $response_headers);
 			$response = json_decode($response, true);
